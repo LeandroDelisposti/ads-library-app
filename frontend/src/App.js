@@ -28,14 +28,6 @@ function App() {
     }));
   };
 
-  const handleMultiSelect = (e, field) => {
-    const values = Array.from(e.target.selectedOptions, option => option.value);
-    setSearchParams(prev => ({
-      ...prev,
-      [field]: values
-    }));
-  };
-
   const handleSearch = async () => {
     setLoading(true);
     setError(null);

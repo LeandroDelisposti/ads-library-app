@@ -9,15 +9,14 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-// Rota raiz para teste
-app.get('/ping', (req, res) => {
-  res.send('Pong');
-});
-
 // Add parameter validation helper
 const validateParams = (param, allowedValues) => {
   return allowedValues.includes(param);
 };
+// Rota raiz para teste
+app.get('/ping', (req, res) => {
+  res.send('Pong');
+});
 
 // Rota para buscar anúncios
 app.get('/api/ads', async (req, res) => {
