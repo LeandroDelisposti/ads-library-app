@@ -10,8 +10,8 @@ app.use(cors());
 app.use(express.json());
 
 // Rota raiz para teste
-app.get('/', (req, res) => {
-  res.send('Backend está funcionando!');
+app.get('/ping', (req, res) => {
+  res.send('Pong');
 });
 
 // Rota para buscar anúncios
@@ -34,8 +34,29 @@ app.get('/api/ads', async (req, res) => {
       params: {
         search_terms: searchTerm,
         ad_reached_countries: country,
-        //fields: 'ad_creative_link_title,ad_creative_link_description',
         access_token: accessToken, // Token atualizado
+        fields: [
+          'ad_data',                    // contains creative elements
+          'page_name',                  // page name
+          'page_id',                    // page id
+          'publisher_platforms',        // platforms where the ad appears
+          'ad_delivery_start_time',     // start time
+          'ad_delivery_stop_time',      // end time
+          'ad_snapshot_url',            // ad link
+          'id',                         // ad id
+          'delivery_by_region',         // regional delivery info
+          'demographic_distribution',   // demographic info
+          'impressions',                // impression data
+          'spend',                      // spending info
+          'estimated_audience_size',
+          'target_locations',
+          'target_gender',
+          'target_ages',
+          'ad_creative_link_descriptions',
+          'ad_creative_link_captions',
+          'ad_creative_bodies',
+          'ad_creative_link_titles'
+        ].join(','),
       },
     });
 
