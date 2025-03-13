@@ -3,18 +3,49 @@ import axios from 'axios';
 import './App.css';
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [country, setCountry] = useState('BR');
+  const [searchParams, setSearchParams] = useState({
+    searchTerm: '',
+    country: 'BR',
+    adActiveStatus: 'ACTIVE',
+    adType: 'ALL',
+    adDeliveryDateMin: '',
+    adDeliveryDateMax: '',
+    mediaType: 'ALL',
+    searchType: 'KEYWORD_UNORDERED',
+    publisherPlatforms: 'ALL',
+    languages: [],
+    unmaskRemovedContent: false
+  });
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setSearchParams(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleMultiSelect = (e, field) => {
+    const values = Array.from(e.target.selectedOptions, option => option.value);
+    setSearchParams(prev => ({
+      ...prev,
+      [field]: values
+    }));
+  };
 
   const handleSearch = async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get('http://localhost:5000/api/ads', {
-        params: { searchTerm, country },
+        params: {
+          ...searchParams,
+          publisherPlatforms: JSON.stringify(searchParams.publisherPlatforms),
+          languages: JSON.stringify(searchParams.languages)
+        }
       });
       setAds(response.data.data || []);
     } catch (error) {
@@ -32,23 +63,109 @@ function App() {
       <h1>Busca de Anúncios do Facebook</h1>
       <div className="search-container">
         {error && (
-          <div className="error-message" style={{ color: 'red', margin: '10px 0' }}>
-            {error}
-          </div>
+          <div className="error-message">{error}</div>
         )}
-        <input
-          type="text"
-          placeholder="Digite uma palavra-chave"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <select value={country} onChange={(e) => setCountry(e.target.value)}>
-          <option value="BR">Brasil</option>
-          <option value="US">Estados Unidos</option>
-        </select>
-        <button onClick={handleSearch} disabled={loading}>
-          {loading ? 'Buscando...' : 'Buscar'}
-        </button>
+        
+        <div className="search-form">
+          <div className="form-group">
+            <label>Termo de Busca:</label>
+            <input
+              type="text"
+              name="searchTerm"
+              value={searchParams.searchTerm}
+              onChange={handleInputChange}
+              placeholder="Digite uma palavra-chave"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>País:</label>
+            <select name="country" value={searchParams.country} onChange={handleInputChange}>
+              <option value="BR">Brasil</option>
+              <option value="US">Estados Unidos</option>
+              {/* Add more countries as needed */}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Status do Anúncio:</label>
+            <select name="adActiveStatus" value={searchParams.adActiveStatus} onChange={handleInputChange}>
+              <option value="ACTIVE">Ativo</option>
+              <option value="INACTIVE">Inativo</option>
+              <option value="ALL">Todos</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Tipo de Anúncio:</label>
+            <select name="adType" value={searchParams.adType} onChange={handleInputChange}>
+              <option value="ALL">Todos</option>
+              <option value="POLITICAL_AND_ISSUE_ADS">Político</option>
+              <option value="HOUSING_ADS">Imóveis</option>
+              <option value="EMPLOYMENT_ADS">Empregos</option>
+              <option value="FINANCIAL_PRODUCTS_AND_SERVICES_ADS">Financeiro</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Data Inicial:</label>
+            <input
+              type="date"
+              name="adDeliveryDateMin"
+              value={searchParams.adDeliveryDateMin}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Data Final:</label>
+            <input
+              type="date"
+              name="adDeliveryDateMax"
+              value={searchParams.adDeliveryDateMax}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Plataformas:</label>
+            <select name="publisherPlatforms" value={searchParams.publisherPlatforms} onChange={handleInputChange}>
+              <option value="ALL">Todos</option>
+              <option value="FACEBOOK">Facebook</option>
+              <option value="INSTAGRAM">Instagram</option>
+              <option value="MESSENGER">Messenger</option>
+              <option value="WHATSAPP">WhatsApp</option>
+              <option value="AUDIENCE_NETWORK">Audience Network</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Tipo de Mídia:</label>
+            <select name="mediaType" value={searchParams.mediaType} onChange={handleInputChange}>
+              <option value="ALL">Todos</option>
+              <option value="IMAGE">Imagem</option>
+              <option value="VIDEO">Vídeo</option>
+              <option value="MEME">Meme</option>
+              <option value="NONE">Nenhum</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>
+              <input
+                type="checkbox"
+                name="unmaskRemovedContent"
+                checked={searchParams.unmaskRemovedContent}
+                onChange={handleInputChange}
+              />
+              Mostrar Conteúdo Removido
+            </label>
+          </div>
+
+          <button onClick={handleSearch} disabled={loading} className="search-button">
+            {loading ? 'Buscando...' : 'Buscar'}
+          </button>
+        </div>
       </div>
 
       <div className="ads-container">
